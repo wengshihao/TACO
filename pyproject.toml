@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "taco-assessment"
+version = "1.0.0"
+description = "TACO: Trust Assessment of LLMs in Coding Assistance Tasks"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "TACO Authors" }
+]
+dependencies = [
+  "openai>=1.55.1",
+  "pydantic>=2.10",
+  "json-repair>=0.35",
+  "PyYAML>=6.0",
+  "tqdm>=4.67",
+]
+
+[project.scripts]
+taco = "taco_tool.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["taco_tool*"]

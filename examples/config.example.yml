@@ -1,0 +1,4 @@
+model: gpt-4o-mini
+base_url: https://api.openai.com/v1
+api_key_env: TACO_API_KEY
+max_tokens: 4096
