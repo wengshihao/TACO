@@ -33,7 +33,7 @@ To evaluate TACO's real-world impact on developer workflows, we introduce 5 huma
 4. *Correction Time (CT)* reflects the time taken to revise an incorrect response.
 5. *Correction Success Rate (CSR)* quantifies the proportion of successful corrections. (Correction outcomes were judged by the corresponding question's original annotator. If a correction took more than 30 minutes, participants were instructed to abandon the attempt and record it as unsuccessful, as prolonged efforts typically exceed the level of effort developers are willing to invest in fixing unreliable LLM outputs. These metrics together characterize both the efficiency and effectiveness of developer decision-making with and without TACO support.)
 
-You can run `python ./user_study_statistics/statistics.py` to calculate the user study statistics. The results are as follows:
+The results are as follows:
 
 | Metric    | Students (n=3) |            | Developers (n=3) |            |
 |----------|----------------|------------|------------------|------------|
