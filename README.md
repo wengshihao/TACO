@@ -11,6 +11,41 @@ TACO is a reference-free trust assessment tool for LLM coding-assistance answers
 
 ![TACO overview](docs/overview-v2.png)
 
+<details>
+<summary><strong>🔥 News: User Study Results</strong></summary>
+
+We are very grateful to the 6 independent developers who helped us conduct this user study.
+
+| **PhDs** | **Number of valid results** |   | **Developers** | **Number of valid results** |   |
+|------------------|-----------------------------|---|------------------|-----------------------------|---|
+|                  | w/o TACO                    | with TACO         |                  | w/o TACO                    | with TACO         |
+| **phd-part1**  | 34                          | 33                | **dev-part1**  | 34                          | 33                |
+| **phd-part2**  | 33                          | 33                | **dev-part2**  | 33                          | 33                |
+| **phd-part3**  | 33                          | 34                | **dev-part3**  | 31                          | 34                |
+| **Total**        | **100**                     | **100**           | **Total**        | **98**                      | **100**           |
+
+
+**Human-centered Metrics:**
+To evaluate TACO's real-world impact on developer workflows, we introduce 5 human-centered metrics collected during the user study.
+1. *Decision Time (DT)* refers to the time required to determine whether an LLM-generated response is adoptable.
+2. *Decision Accuracy (DA)* measures the correctness of these judgments relative to benchmark labels.
+3. *Perceived Usefulness (PU)* captures participants' subjective assessment of TACO's feedback using a 7-point Likert scale, where higher scores indicate stronger perceived utility.
+4. *Correction Time (CT)* reflects the time taken to revise an incorrect response.
+5. *Correction Success Rate (CSR)* quantifies the proportion of successful corrections. (Correction outcomes were judged by the corresponding question's original annotator. If a correction took more than 30 minutes, participants were instructed to abandon the attempt and record it as unsuccessful, as prolonged efforts typically exceed the level of effort developers are willing to invest in fixing unreliable LLM outputs. These metrics together characterize both the efficiency and effectiveness of developer decision-making with and without TACO support.)
+
+You can run `python ./user_study_statistics/statistics.py` to calculate the user study statistics. The results are as follows:
+
+| Metric    | Students (n=3) |            | Developers (n=3) |            |
+|----------|----------------|------------|------------------|------------|
+|          | w/o TACO       | with TACO  | w/o TACO         | with TACO  |
+| DT (min) | 11.5m          | 5.1m (↓55.7%)  | 9.7m            | 5.2m (↓46.4%)  |
+| DA (%)   | 65.0%          | 81% (↑24.6%)   | 73.5%           | 84% (↑14.3%)   |
+| PU (1-7) | -              | 6.3        | -                | 6.1        |
+| CT (min) | 22.6m          | 15.4m (↓31.9%) | 18.6m           | 11.4m (↓38.7%) |
+| CSR (%)  | 67.6%          | 93.9% (↑43.3%) | 75.4%           | 91.3% (↑21.1%) |
+
+</details>
+
 ## Online Use
 
 [Click here](https://wengshihao.github.io/TACO/) to open the hosted web app.
@@ -115,41 +150,6 @@ TACO uses this assessment flow:
 4. Score code quality on a 0 to 3 rubric.
 5. Score answer alignment with user intent on a 0 to 3 rubric.
 6. Report `S = alpha * C + (1 - alpha) * A` and `R = 1[min(C, A) >= 2]`.
-
-<details>
-<summary><strong>🔥 News - we conduct a user study! 🔥</strong></summary>
-
-We are very grateful to the 6 independent developers who helped us conduct this user study.
-
-| **PhDs** | **Number of valid results** |   | **Developers** | **Number of valid results** |   |
-|------------------|-----------------------------|---|------------------|-----------------------------|---|
-|                  | w/o TACO                    | with TACO         |                  | w/o TACO                    | with TACO         |
-| **phd-part1**  | 34                          | 33                | **dev-part1**  | 34                          | 33                |
-| **phd-part2**  | 33                          | 33                | **dev-part2**  | 33                          | 33                |
-| **phd-part3**  | 33                          | 34                | **dev-part3**  | 31                          | 34                |
-| **Total**        | **100**                     | **100**           | **Total**        | **98**                      | **100**           |
-
-
-**Human-centered Metrics:**
-To evaluate TACO’s real-world impact on developer workflows, we introduce 5 human-centered metrics collected during the user study. 
-1. *Decision Time (DT)* refers to the time required to determine whether an LLM-generated response is adoptable.
-2. *Decision Accuracy (DA)* measures the correctness of these judgments relative to benchmark labels. 
-3. *Perceived Usefulness (PU)* captures participants’ subjective assessment of TACO’s feedback using a 7‑point Likert scale, where higher scores indicate stronger perceived utility.
-4. *Correction Time (CT)* reflects the time taken to revise an incorrect response. 
-5. *Correction Success Rate (CSR)* quantifies the proportion of successful corrections. (Correction outcomes were judged by the corresponding question's original annotator. If a correction took more than 30 minutes, participants were instructed to abandon the attempt and record it as unsuccessful, as prolonged efforts typically exceed the level of effort developers are willing to invest in fixing unreliable LLM outputs. These metrics together characterize both the efficiency and effectiveness of developer decision‑making with and without TACO support.)
-
-You can run `python ./user_study_statistics/statistics.py` to calculate the user study statistics. The results are as follows:
-
-| Metric    | Students (n=3) |            | Developers (n=3) |            |
-|----------|----------------|------------|------------------|------------|
-|          | w/o TACO       | with TACO  | w/o TACO         | with TACO  |
-| DT (min) | 11.5m          | 5.1m (↓55.7%)  | 9.7m            | 5.2m (↓46.4%)  |
-| DA (%)   | 65.0%          | 81% (↑24.6%)   | 73.5%           | 84% (↑14.3%)   |
-| PU (1-7) | -              | 6.3        | -                | 6.1        |
-| CT (min) | 22.6m          | 15.4m (↓31.9%) | 18.6m           | 11.4m (↓38.7%) |
-| CSR (%)  | 67.6%          | 93.9% (↑43.3%) | 75.4%           | 91.3% (↑21.1%) |
-
-</details>
 
 ## Citation
 
