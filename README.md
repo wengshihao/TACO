@@ -1,173 +1,217 @@
-# 🌮 TACO
+<p align="center">
+  <a href="https://wengshihao.github.io/TACO/">
+    <img src="docs/cover.png" alt="TACO: Can you trust what the LLM just wrote?" width="100%">
+  </a>
+</p>
 
-[![GitHub Pages](https://img.shields.io/badge/Online%20Use-GitHub%20Pages-2ea44f)](https://wengshihao.github.io/TACO/)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab)](https://www.python.org/)
-[![Web UI](https://img.shields.io/badge/Web%20UI-React%20%2B%20Vite-646cff)](https://vite.dev/)
-[![Languages](https://img.shields.io/badge/Languages-Python%20%7C%20Java-f97316)](#)
+<p align="center">
+  <b>Reference-free trust assessment for LLM coding assistance.</b><br>
+  Paste a question and an LLM's answer. TACO tells you whether to trust it, and why.
+</p>
 
-We now have a new, easier-to-use release of TACO.
+<p align="center">
+  <a href="https://wengshihao.github.io/TACO/"><b>Live demo</b></a> &nbsp;·&nbsp;
+  <a href="#quick-start"><b>Quick start</b></a> &nbsp;·&nbsp;
+  <a href="#how-it-works"><b>How it works</b></a> &nbsp;·&nbsp;
+  <a href="#benchmark"><b>Benchmark</b></a> &nbsp;·&nbsp;
+  <a href="#citation"><b>Citation</b></a>
+</p>
 
-TACO is a reference-free trust assessment tool for LLM coding-assistance answers. It constructs executable-style checks, simulates question and answer behavior, re-completes failed question harnesses, and reports code quality, answer alignment, and a final trust indicator.
+<p align="center">
+  <a href="#citation"><img src="https://img.shields.io/badge/ICSE-2026-15171c?style=flat-square" alt="ICSE 2026"></a>
+  <a href="https://wengshihao.github.io/TACO/"><img src="https://img.shields.io/badge/demo-live-127a55?style=flat-square" alt="Live demo"></a>
+  <img src="https://img.shields.io/badge/python-3.10%2B-c97a1c?style=flat-square" alt="Python 3.10+">
+  <img src="https://img.shields.io/badge/assesses-Python%20%7C%20Java-4f72d6?style=flat-square" alt="Python and Java">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-7c818c?style=flat-square" alt="MIT license"></a>
+</p>
 
-![TACO overview](docs/overview-v2.png)
+---
+
+**TACO** checks whether an LLM's answer to a coding question deserves trust, **without a reference answer**. It turns the question and the answer into executable harnesses, traces both by LLM-based virtual execution, and scores two things:
+
+- **Code quality `C`**: does the proposed fix actually work on a test that reproduces the issue?
+- **Intent alignment `A`**: does the answer address what the developer actually asked?
+
+It returns a continuous score `S` for ranking and a conservative verdict `R` for adoption. Use it from the browser, as a local web app, or as a Python CLI and library, with any OpenAI-compatible model.
+
+## News
+
+- **2026-10**: The new [web playground](https://wengshihao.github.io/TACO/) is live. It shows the full pipeline live, includes human-labelled TACO-Judge examples, and needs no installation.
+- **ICSE 2026**: TACO is accepted to the 48th IEEE/ACM International Conference on Software Engineering. 🎉
+- **User study**: with TACO, PhD students decided whether to adopt an answer **55.7% faster** and repaired wrong answers **43.3% more successfully**. [Details ↓](#user-study)
+
+## Quick start
+
+| | Best for | Setup |
+|---|---|---|
+| 🌐 **[Browser](https://wengshihao.github.io/TACO/)** | trying TACO on a single answer | none |
+| 💻 **Local web app** | the same UI without CORS limits; keeps calls on your machine | `npm run local` |
+| 🐍 **CLI & Python API** | benchmarks and batch evaluation | `pip install -e .` |
+
+### Browser
+
+Open **[wengshihao.github.io/TACO](https://wengshihao.github.io/TACO/)**, pick a provider, and paste your API key. Load an example or paste your own question and answer, then press <kbd>⌘/Ctrl</kbd> + <kbd>Enter</kbd>.
+
+The page is fully static, and requests go straight from your browser to your provider, so the provider must allow browser (CORS) requests. Your key stays in the current tab unless you choose to remember it.
+
+### Local web app
+
+```bash
+git clone https://github.com/wengshihao/TACO.git && cd TACO
+npm install
+npm run local        # → http://127.0.0.1:4173/TACO/
+```
+
+Same interface as the hosted page. It detects the bundled local server and routes LLM calls through `/api/llm-proxy`, so providers that block browser requests work too.
+
+### CLI
+
+```bash
+pip install -e .     # Python ≥ 3.10
+
+export TACO_API_KEY=sk-...
+export TACO_BASE_URL=https://api.openai.com/v1   # any OpenAI-compatible endpoint
+export TACO_MODEL=gpt-4o-mini
+
+taco run \
+  --input  benchmark/TACO-Judge/chatgpt4o.jsonl \
+  --output outputs/chatgpt4o.jsonl \
+  --question-field question --answer-field llmanswer \
+  --language python --concurrency 4 --resume
+```
+
+Each output line is one JSON record:
+
+```jsonc
+{
+  "id": "00b0fce2…",
+  "code_quality_score": 3,        // C ∈ {0,1,2,3}
+  "alignment_score": 1,           // A ∈ {0,1,2,3}
+  "overall_score": 2.0,           // S = α·C + (1−α)·A
+  "reliability": 0,               // R = 𝟙[min(C, A) ≥ 2]
+  "code_quality_analysis": "…",
+  "alignment_analysis": "…",
+  "intermediate": { "completion": {…}, "question_trace": {…}, "answer_trace": {…}, "raw": {…} }
+}
+```
 
 <details>
-<summary><strong>🔥 News: User Study Results</strong></summary>
+<summary><b>All CLI options</b></summary>
 
-We are very grateful to the 6 independent developers who helped us conduct this user study.
-
-| **PhDs** | **Number of valid results** |   | **Developers** | **Number of valid results** |   |
-|------------------|-----------------------------|---|------------------|-----------------------------|---|
-|                  | w/o TACO                    | with TACO         |                  | w/o TACO                    | with TACO         |
-| **phd-part1**  | 34                          | 33                | **dev-part1**  | 34                          | 33                |
-| **phd-part2**  | 33                          | 33                | **dev-part2**  | 33                          | 33                |
-| **phd-part3**  | 33                          | 34                | **dev-part3**  | 31                          | 34                |
-| **Total**        | **100**                     | **100**           | **Total**        | **98**                      | **100**           |
-
-
-**Human-centered Metrics:**
-To evaluate TACO's real-world impact on developer workflows, we introduce 5 human-centered metrics collected during the user study.
-1. *Decision Time (DT)* refers to the time required to determine whether an LLM-generated response is adoptable.
-2. *Decision Accuracy (DA)* measures the correctness of these judgments relative to benchmark labels.
-3. *Perceived Usefulness (PU)* captures participants' subjective assessment of TACO's feedback using a 7-point Likert scale, where higher scores indicate stronger perceived utility.
-4. *Correction Time (CT)* reflects the time taken to revise an incorrect response.
-5. *Correction Success Rate (CSR)* quantifies the proportion of successful corrections. (Correction outcomes were judged by the corresponding question's original annotator. If a correction took more than 30 minutes, participants were instructed to abandon the attempt and record it as unsuccessful, as prolonged efforts typically exceed the level of effort developers are willing to invest in fixing unreliable LLM outputs. These metrics together characterize both the efficiency and effectiveness of developer decision-making with and without TACO support.)
-
-The results are as follows:
-
-| Metric    | Students (n=3) |            | Developers (n=3) |            |
-|----------|----------------|------------|------------------|------------|
-|          | w/o TACO       | with TACO  | w/o TACO         | with TACO  |
-| DT (min) | 11.5m          | 5.1m (↓55.7%)  | 9.7m            | 5.2m (↓46.4%)  |
-| DA (%)   | 65.0%          | 81% (↑24.6%)   | 73.5%           | 84% (↑14.3%)   |
-| PU (1-7) | -              | 6.3        | -                | 6.1        |
-| CT (min) | 22.6m          | 15.4m (↓31.9%) | 18.6m           | 11.4m (↓38.7%) |
-| CSR (%)  | 67.6%          | 93.9% (↑43.3%) | 75.4%           | 91.3% (↑21.1%) |
+| Option | Default | Description |
+|---|---|---|
+| `--language` | `python` | `python` or `java` prompts |
+| `--alpha` | `0.5` | weight of code quality in `S` |
+| `--max-recompletion` | `2` | re-completion attempts when the question harness fails |
+| `--concurrency` | `1` | records evaluated in parallel |
+| `--start`, `--limit` | `0`, all | evaluate a slice of the input |
+| `--resume` | off | skip IDs already present in `--output` |
+| `--no-raw` | off | drop raw LLM responses from the output |
+| `--config` | – | YAML with `model`, `base_url`, `api_key_env`, `max_tokens` (see [`examples/config.example.yml`](examples/config.example.yml)) |
+| `--model`, `--base-url`, `--api-key` | env | override `TACO_MODEL`, `TACO_BASE_URL`, `TACO_API_KEY` |
 
 </details>
 
-## Online Use
+### Python API
 
-[Click here](https://wengshihao.github.io/TACO/) to open the hosted web app.
+```python
+from taco_tool import TacoEngine
+from taco_tool.llm import OpenAICompatibleClient
 
-Pick a provider (or any OpenAI-compatible endpoint), choose Python or Java, then paste a user question and an LLM answer, or load one of the human-labelled TACO-Judge examples. Press `Assess trust` (`⌘/Ctrl + Enter`).
+engine = TacoEngine(client=OpenAICompatibleClient(model="gpt-4o-mini"), language="python")
+result = engine.evaluate(question=question_md, answer=llm_answer_md)
 
-The playground shows each pipeline stage live. The response-alignment check runs in parallel with the code-quality branch, and both harnesses are virtually executed concurrently. The report includes:
-
-- the verdict `R`, code quality `C`, and alignment `A`, plus `S` with an α slider that re-weights instantly, no re-run needed;
-- agreement with the human label when you ran a benchmark example;
-- the completed harnesses, annotated execution traces, raw JSON, and a JSON download.
-
-The online page is fully static and sends requests straight from your browser, so your provider must allow browser CORS. Your API key stays in the tab session unless you tick *Remember key on this device*.
-
-## Quick Start
-
-Run the same web UI locally when you want to keep API calls on your machine or avoid browser CORS issues.
-
-```bash
-git clone https://github.com/wengshihao/TACO.git
-cd TACO
-npm install
-npm run local
+result.reliability      # 1 = trustworthy, 0 = untrustworthy
+result.overall_score    # S in [0, 3]
 ```
 
-Open:
+## How it works
 
-```text
-http://127.0.0.1:4173/TACO/
-```
+<p align="center">
+  <img src="docs/overview-v2.png" alt="TACO overview" width="100%">
+</p>
 
-The local page has the same interface as the online app. It detects the local server and routes LLM requests through `/api/llm-proxy` automatically, which avoids CORS. You can switch this off in the connection settings.
+TACO assesses an answer along two independent paths that run in parallel:
+
+1. **Code quality (§4.1).** From the question and answer, TACO derives a minimal test and completes the snippets into two harnesses. The *question harness* reproduces the reported behaviour, and the *answer harness* applies the proposed fix. An LLM interpreter traces both line by line. If the question harness fails to reproduce the issue, TACO re-completes it using the failure as feedback. A rubric then yields `C`.
+2. **Response alignment (§4.2).** A separate evaluator checks whether the answer meets the developer's intent, including constraints, scope, and the explanation asked for. It yields `A`.
+3. **Output (§4.3).**
+
+$$
+S = \alpha \cdot C + (1-\alpha)\cdot A, \qquad R = \mathbb{1}\left[\min(C, A) \ge 2\right]
+$$
+
+`R` is deliberately conservative: an answer is trusted only if it is *both* correct enough and on-intent.
 
 ## Benchmark
 
-The release includes the benchmark data used by TACO:
+Everything used in the paper ships in [`benchmark/`](benchmark).
 
-- `benchmark/TACO-Eval`: real-world Python coding-assistance tasks.
-- `benchmark/TACO-Judge`: human-annotated Python model responses.
-- `benchmark/TACO-Judge-Java`: Java coding-assistance responses with annotations.
+| Dataset | Language | Size | Labels | |
+|---|---|---|---|---|
+| **TACO-Eval** | Python | 1,328 Stack Overflow tasks, with responses from 7 LLMs | accepted answers | [`benchmark/TACO-Eval`](benchmark/TACO-Eval) |
+| **TACO-Judge** | Python | 1,593 responses from GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro, and Llama 3.1 405B | human trust labels | [`benchmark/TACO-Judge`](benchmark/TACO-Judge) |
+| **TACO-Judge-Java** | Java | 100 responses | human trust labels | [`benchmark/TACO-Judge-Java`](benchmark/TACO-Judge-Java) |
 
-A benchmark index is also exposed from the web app at `/benchmark/`. The playground's example gallery (`public/samples.json`) is generated from TACO-Judge with `npm run samples`.
+Field descriptions are in [`benchmark/README.md`](benchmark/README.md). The playground's example gallery is drawn from TACO-Judge (`npm run samples`).
+
+## User study
+
+Six independent participants, three PhD students and three professional developers, judged and repaired LLM answers with and without TACO, about 100 answers per condition per group.
+
+| Metric | PhD students<br>w/o → with TACO | Developers<br>w/o → with TACO |
+|---|:---:|:---:|
+| Decision time (min) ↓ | 11.5 → **5.1** &nbsp;(−55.7%) | 9.7 → **5.2** &nbsp;(−46.4%) |
+| Decision accuracy (%) ↑ | 65.0 → **81.0** &nbsp;(+24.6%) | 73.5 → **84.0** &nbsp;(+14.3%) |
+| Correction time (min) ↓ | 22.6 → **15.4** &nbsp;(−31.9%) | 18.6 → **11.4** &nbsp;(−38.7%) |
+| Correction success (%) ↑ | 67.6 → **93.9** &nbsp;(+43.3%) | 75.4 → **91.3** &nbsp;(+21.1%) |
+| Perceived usefulness (1–7) ↑ | **6.3** | **6.1** |
 
 <details>
-<summary><strong>CLI for benchmark and batch evaluation</strong></summary>
+<summary>Metric definitions and participant breakdown</summary>
 
-### Install
+- **Decision time (DT)**: time to decide whether an LLM response is adoptable.
+- **Decision accuracy (DA)**: correctness of that decision against the benchmark label.
+- **Perceived usefulness (PU)**: participants' rating of TACO's feedback on a 7-point Likert scale.
+- **Correction time (CT)**: time taken to revise an incorrect response.
+- **Correction success rate (CSR)**: share of successful corrections, judged by the question's original annotator. Attempts over 30 minutes were recorded as unsuccessful, since prolonged efforts typically exceed what developers will invest in fixing unreliable LLM output.
 
-Use the project conda environment, then install the package:
+Valid results per participant:
 
-```bash
-conda activate taco
-pip install -e .
-```
+| | w/o TACO | with TACO | | w/o TACO | with TACO |
+|---|:---:|:---:|---|:---:|:---:|
+| phd-part1 | 34 | 33 | dev-part1 | 34 | 33 |
+| phd-part2 | 33 | 33 | dev-part2 | 33 | 33 |
+| phd-part3 | 33 | 34 | dev-part3 | 31 | 34 |
+| **Total** | **100** | **100** | **Total** | **98** | **100** |
 
-Set an OpenAI-compatible endpoint:
-
-```bash
-export TACO_API_KEY="YOUR_API_KEY"
-export TACO_BASE_URL="https://api.openai.com/v1"
-export TACO_MODEL="gpt-4o-mini"
-```
-
-### Run Python Benchmark
-
-```bash
-taco run \
-  --input benchmark/TACO-Judge/chatgpt4o.jsonl \
-  --output outputs/taco-judge-chatgpt4o.jsonl \
-  --question-field question \
-  --answer-field llmanswer \
-  --language python \
-  --resume
-```
-
-### Run Java Benchmark
-
-```bash
-taco run \
-  --input benchmark/TACO-Judge-Java/data_java_annotated.jsonl \
-  --output outputs/taco-judge-java.jsonl \
-  --question-field question \
-  --answer-field llmanswer \
-  --language java \
-  --resume
-```
-
-### Useful Options
-
-```bash
---alpha 0.5
---max-recompletion 2
---limit 10
---start 100
---concurrency 2
---no-raw
-```
-
-Each output row contains the TACO scores, final reliability indicator, and intermediate traces.
+We are grateful to all six participants.
 
 </details>
 
-## Method
+## Repository layout
 
-TACO uses this assessment flow:
-
-1. Convert the user question and LLM answer into a minimal test and completed harnesses.
-2. Virtually execute the question harness and answer harness.
-3. Re-complete the harness when the question-side assertion fails.
-4. Score code quality on a 0 to 3 rubric.
-5. Score answer alignment with user intent on a 0 to 3 rubric.
-6. Report `S = alpha * C + (1 - alpha) * A` and `R = 1[min(C, A) >= 2]`.
+```
+src/          web app (React + Vite): playground, engine, prompts
+taco_tool/    Python package and `taco` CLI
+benchmark/    TACO-Eval, TACO-Judge, TACO-Judge-Java
+scripts/      local server with LLM proxy, Pages sync, sample builder
+docs/         figures and the cover (cover.html is its editable source)
+```
 
 ## Citation
 
-Please cite the TACO paper when using this tool or benchmark:
+If TACO or its benchmarks help your work, please cite:
 
 ```bibtex
 @inproceedings{weng2026taco,
-  title = {TACO: Trust Assessment of Large Language Models in Coding Assistance Tasks},
-  author = {Weng, Shihao and Feng, Yang and Li, Jincheng and Yin, Yining and Zhang, Zhenlun and Liu, Lyuxi and Liu, Jia},
+  title     = {TACO: Trust Assessment of Large Language Models in Coding Assistance Tasks},
+  author    = {Weng, Shihao and Feng, Yang and Li, Jincheng and Yin, Yining and Zhang, Zhenlun and Liu, Lyuxi and Liu, Jia},
   booktitle = {Proceedings of the 2026 IEEE/ACM 48th International Conference on Software Engineering},
-  year = {2026}
+  year      = {2026}
 }
 ```
+
+## License
+
+[MIT](LICENSE)

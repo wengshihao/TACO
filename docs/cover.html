@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TACO cover</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,300..800;1,400..600&family=JetBrains+Mono:wght@400;500;600&display=block"
+    />
+    <style>
+      :root {
+        --bg: #fafaf7;
+        --surface: #ffffff;
+        --surface-2: #f6f5f0;
+        --ink: #15171c;
+        --ink-2: #474c57;
+        --ink-3: #7c818c;
+        --line: #e7e5de;
+        --line-2: #d5d3ca;
+        --accent: #c97a1c;
+        --accent-ink: #94560a;
+        --accent-soft: #fbf0df;
+        --trust: #127a55;
+        --trust-soft: #e6f4ed;
+        --risk: #c23b25;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1600px;
+        height: 900px;
+        overflow: hidden;
+      }
+      body {
+        position: relative;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Exo", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      code {
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* backdrop */
+      .dots {
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(#d2d0c6 1.4px, transparent 1.4px);
+        background-size: 26px 26px;
+        -webkit-mask-image: radial-gradient(ellipse 60% 80% at 74% 46%, #000 20%, transparent 72%);
+      }
+      .glow-a {
+        position: absolute;
+        width: 900px;
+        height: 900px;
+        right: -260px;
+        top: -360px;
+        background: radial-gradient(circle, rgba(233, 162, 59, 0.32), transparent 62%);
+        filter: blur(10px);
+      }
+      .glow-b {
+        position: absolute;
+        width: 700px;
+        height: 700px;
+        right: 220px;
+        bottom: -460px;
+        background: radial-gradient(circle, rgba(62, 194, 141, 0.18), transparent 62%);
+        filter: blur(10px);
+      }
+      .rule {
+        position: absolute;
+        left: 96px;
+        right: 96px;
+        bottom: 104px;
+        height: 1px;
+        background: var(--line);
+      }
+
+      /* left column */
+      .copy {
+        position: absolute;
+        left: 96px;
+        top: 96px;
+        width: 760px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .brand .word {
+        font-size: 30px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+      .venue {
+        margin-left: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 5px 16px 5px 5px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.8);
+        font-size: 16px;
+        color: var(--ink-2);
+      }
+      .venue b {
+        padding: 3px 12px;
+        border-radius: 999px;
+        background: var(--ink);
+        color: var(--bg);
+        font-weight: 600;
+        letter-spacing: 0.04em;
+      }
+      h1 {
+        margin: 54px 0 0;
+        font-size: 88px;
+        line-height: 1.02;
+        font-weight: 600;
+        letter-spacing: -0.035em;
+      }
+      h1 .hl {
+        background: linear-gradient(transparent 72%, #f6dfb8 72%, #f6dfb8 94%, transparent 94%);
+      }
+      .sub {
+        margin: 30px 0 0;
+        width: 680px;
+        font-size: 25px;
+        line-height: 1.5;
+        color: var(--ink-2);
+      }
+      .sub strong {
+        color: var(--ink);
+        font-weight: 650;
+      }
+      .stats {
+        display: flex;
+        gap: 52px;
+        margin-top: 46px;
+      }
+      .stat dt {
+        font-size: 44px;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        line-height: 1.05;
+      }
+      .stat dd {
+        margin: 6px 0 0;
+        font-size: 17px;
+        color: var(--ink-3);
+        line-height: 1.35;
+      }
+      .stats dl {
+        margin: 0;
+      }
+
+      /* footer */
+      .foot {
+        position: absolute;
+        left: 96px;
+        right: 96px;
+        bottom: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 19px;
+        color: var(--ink-2);
+      }
+      .foot .url {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .foot .url .go {
+        display: inline-grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--ink);
+        color: var(--bg);
+        font-size: 18px;
+      }
+      .foot .meta {
+        display: flex;
+        gap: 26px;
+        color: var(--ink-3);
+      }
+      .foot .meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* card stack */
+      .stack {
+        position: absolute;
+        left: 930px;
+        top: 96px;
+        width: 600px;
+        height: 680px;
+      }
+      .card {
+        position: absolute;
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        box-shadow: 0 1px 2px rgba(20, 22, 28, 0.05), 0 18px 40px rgba(20, 22, 28, 0.08), 0 50px 90px rgba(20, 22, 28, 0.1);
+      }
+      .back {
+        top: 40px;
+        left: 150px;
+        width: 420px;
+        padding: 26px 30px 30px;
+        transform: rotate(5deg);
+      }
+      .eyebrow {
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .word {
+        font-weight: 650;
+        letter-spacing: -0.02em;
+      }
+      .back .word {
+        display: block;
+        margin-top: 6px;
+        font-size: 44px;
+        color: var(--risk);
+      }
+      .back .why {
+        margin-top: 8px;
+        font-size: 17px;
+        color: var(--ink-3);
+      }
+      .back .bars {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 18px;
+        font-size: 15px;
+        color: var(--ink-2);
+      }
+      .front {
+        top: 206px;
+        left: 0;
+        width: 556px;
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        transform: rotate(-2deg);
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 32px 1fr;
+        gap: 14px;
+        align-items: start;
+        font-size: 20px;
+        line-height: 1.45;
+        color: var(--ink-2);
+      }
+      .tag {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--ink-2);
+      }
+      .row code {
+        font-size: 19px;
+        color: var(--ink);
+        line-height: 32px;
+      }
+      .trace {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 13px 14px 13px 16px;
+        border-radius: 14px;
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+      }
+      .trace code {
+        font-size: 14.5px;
+        white-space: nowrap;
+      }
+      .chip {
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        height: 30px;
+        padding: 0 12px;
+        border-radius: 999px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 14px;
+        font-weight: 500;
+        border: 1px solid rgba(18, 122, 85, 0.35);
+        background: var(--trust-soft);
+        color: var(--trust);
+      }
+      .chip.bad {
+        border-color: rgba(194, 59, 37, 0.35);
+        background: #fbebe7;
+        color: var(--risk);
+      }
+      .meters {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        font-size: 19px;
+        color: var(--ink-2);
+      }
+      .meters > div {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+      }
+      .bar {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+      }
+      .bar b {
+        height: 9px;
+        border-radius: 5px;
+        background: var(--trust);
+      }
+      .bar b.off {
+        background: #ecebe5;
+      }
+      .bar.risk b:not(.off) {
+        background: var(--risk);
+      }
+      .verdict {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        padding-top: 16px;
+        border-top: 1px solid var(--line);
+      }
+      .verdict .word {
+        font-size: 40px;
+        color: var(--trust);
+      }
+      .math {
+        font-style: italic;
+        font-weight: 500;
+        font-size: 19px;
+        color: var(--ink-3);
+      }
+
+      /* floating lane pill */
+      .pill {
+        position: absolute;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 10px 30px rgba(20, 22, 28, 0.08);
+        font-size: 16px;
+        color: var(--ink-2);
+        white-space: nowrap;
+      }
+      .pill .sec {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 14px;
+        color: var(--accent-ink);
+      }
+      .pill .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 4px rgba(201, 122, 28, 0.18);
+      }
+      .pill.p1 {
+        left: -70px;
+        top: 112px;
+        transform: rotate(-2deg);
+      }
+      .pill.p2 {
+        left: 290px;
+        top: 650px;
+        transform: rotate(-1deg);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="glow-a"></div>
+    <div class="glow-b"></div>
+    <div class="dots"></div>
+
+    <section class="copy">
+      <div class="brand">
+        <svg width="44" height="44" viewBox="0 0 32 32" aria-hidden>
+          <rect width="32" height="32" rx="8" fill="#15171c" />
+          <path d="M5 15.5h22a11 11 0 0 1-22 0Z" fill="#e9a23b" />
+          <path
+            d="M5.5 15.2c1.6-2.6 3.4-2.6 5 0s3.4 2.6 5 0 3.4-2.6 5 0 3.4 2.6 5 0"
+            fill="none"
+            stroke="#3fc28f"
+            stroke-width="2.2"
+            stroke-linecap="round"
+          />
+        </svg>
+        <span class="word">TACO</span>
+        <span class="venue"><b>ICSE 2026</b> Research paper · open-source tool</span>
+      </div>
+
+      <h1>Can you <span class="hl">trust</span> what the LLM just wrote?</h1>
+
+      <p class="sub">
+        <strong>Reference-free trust assessment for LLM coding assistance.</strong> TACO turns a question and an answer into executable
+        harnesses, traces them by virtual execution, and scores code quality and intent alignment.
+      </p>
+
+      <div class="stats">
+        <dl class="stat">
+          <dt>−55.7%</dt>
+          <dd>time to decide<br />whether to adopt</dd>
+        </dl>
+        <dl class="stat">
+          <dt>+24.6%</dt>
+          <dd>decision<br />accuracy</dd>
+        </dl>
+        <dl class="stat">
+          <dt>+43.3%</dt>
+          <dd>success fixing<br />a wrong answer</dd>
+        </dl>
+      </div>
+    </section>
+
+    <div class="stack">
+      <div class="card back">
+        <div class="eyebrow">Verdict</div>
+        <span class="word">Untrustworthy</span>
+        <div class="why">Code quality falls below the acceptable bar.</div>
+      </div>
+
+      <div class="card front">
+        <div class="row">
+          <span class="tag">Q</span>
+          <span>Why do I get a TypeError when adding an integer to a string?</span>
+        </div>
+        <div class="row">
+          <span class="tag">A</span>
+          <code>result = <span style="color: #2457c5">str</span>(num) + text</code>
+        </div>
+        <div class="trace">
+          <code><span style="color: #8a3ffc">assert</span> answer(case) == <span style="color: #0f7b5f">"10 apples"</span></code>
+          <span class="chip">assert pass</span>
+        </div>
+        <div class="meters">
+          <div>
+            <span><i>C</i> = 3 · code quality</span>
+            <div class="bar"><b></b><b></b><b></b></div>
+          </div>
+          <div>
+            <span><i>A</i> = 3 · intent alignment</span>
+            <div class="bar"><b></b><b></b><b></b></div>
+          </div>
+        </div>
+        <div class="verdict">
+          <span class="word">Trustworthy</span>
+          <span class="math">S = 3.00 · R = 1</span>
+        </div>
+      </div>
+
+      <div class="pill p1"><span class="dot"></span><span class="sec">§4.1</span> virtual execution</div>
+      <div class="pill p2"><span class="sec">no reference answer needed</span></div>
+    </div>
+
+    <div class="rule"></div>
+    <footer class="foot">
+      <span class="url"><span class="go">→</span> wengshihao.github.io/TACO</span>
+      <span class="meta">
+        <span>Python &amp; Java</span>
+        <span>Any OpenAI-compatible LLM</span>
+        <span>github.com/wengshihao/TACO</span>
+      </span>
+    </footer>
+  </body>
+</html>
