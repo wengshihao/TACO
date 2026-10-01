@@ -34,11 +34,18 @@
 
 It returns a continuous score `S` for ranking and a conservative verdict `R` for adoption. Use it from the browser, as a local web app, or as a Python CLI and library, with any OpenAI-compatible model.
 
+<p align="center">
+  <a href="https://wengshihao.github.io/TACO/">
+    <img src="docs/playground.png" alt="The TACO playground showing an assessment result" width="100%">
+  </a>
+  <br>
+  <sub>The <a href="https://wengshihao.github.io/TACO/">web playground</a>: a correct fix that skips the explanation the developer asked for is flagged as untrustworthy.</sub>
+</p>
+
 ## News
 
 - **2026-10**: The new [web playground](https://wengshihao.github.io/TACO/) is live. It shows the full pipeline live, includes human-labelled TACO-Judge examples, and needs no installation.
 - **ICSE 2026**: TACO is accepted to the 48th IEEE/ACM International Conference on Software Engineering. 🎉
-- **User study**: with TACO, PhD students decided whether to adopt an answer **55.7% faster** and repaired wrong answers **43.3% more successfully**. [Details ↓](#user-study)
 
 ## Quick start
 
@@ -83,16 +90,8 @@ taco run \
 Each output line is one JSON record:
 
 ```jsonc
-{
-  "id": "00b0fce2…",
-  "code_quality_score": 3,        // C ∈ {0,1,2,3}
-  "alignment_score": 1,           // A ∈ {0,1,2,3}
-  "overall_score": 2.0,           // S = α·C + (1−α)·A
-  "reliability": 0,               // R = 𝟙[min(C, A) ≥ 2]
-  "code_quality_analysis": "…",
-  "alignment_analysis": "…",
-  "intermediate": { "completion": {…}, "question_trace": {…}, "answer_trace": {…}, "raw": {…} }
-}
+{ "id": "00b0fce2…", "code_quality_score": 3, "alignment_score": 1, "overall_score": 2.0, "reliability": 0,
+  "code_quality_analysis": "…", "alignment_analysis": "…", "intermediate": { /* harnesses, traces, raw responses */ } }
 ```
 
 <details>
@@ -157,47 +156,27 @@ Field descriptions are in [`benchmark/README.md`](benchmark/README.md). The play
 
 ## User study
 
-Six independent participants, three PhD students and three professional developers, judged and repaired LLM answers with and without TACO, about 100 answers per condition per group.
+Three PhD students and three professional developers judged and repaired LLM answers with and without TACO, about 100 answers per condition per group (n = 3 per group).
 
-| Metric | PhD students<br>w/o → with TACO | Developers<br>w/o → with TACO |
+| | PhD students | Developers |
 |---|:---:|:---:|
-| Decision time (min) ↓ | 11.5 → **5.1** &nbsp;(−55.7%) | 9.7 → **5.2** &nbsp;(−46.4%) |
-| Decision accuracy (%) ↑ | 65.0 → **81.0** &nbsp;(+24.6%) | 73.5 → **84.0** &nbsp;(+14.3%) |
-| Correction time (min) ↓ | 22.6 → **15.4** &nbsp;(−31.9%) | 18.6 → **11.4** &nbsp;(−38.7%) |
-| Correction success (%) ↑ | 67.6 → **93.9** &nbsp;(+43.3%) | 75.4 → **91.3** &nbsp;(+21.1%) |
-| Perceived usefulness (1–7) ↑ | **6.3** | **6.1** |
+| Decision time ↓ | 11.5 → **5.1** min | 9.7 → **5.2** min |
+| Decision accuracy ↑ | 65.0 → **81.0** % | 73.5 → **84.0** % |
+| Correction success ↑ | 67.6 → **93.9** % | 75.4 → **91.3** % |
+
+<sub>Each cell is *without → with* TACO. Participants rated TACO's usefulness 6.3 and 6.1 out of 7.</sub>
 
 <details>
-<summary>Metric definitions and participant breakdown</summary>
+<summary>Correction time and metric definitions</summary>
 
-- **Decision time (DT)**: time to decide whether an LLM response is adoptable.
-- **Decision accuracy (DA)**: correctness of that decision against the benchmark label.
-- **Perceived usefulness (PU)**: participants' rating of TACO's feedback on a 7-point Likert scale.
-- **Correction time (CT)**: time taken to revise an incorrect response.
-- **Correction success rate (CSR)**: share of successful corrections, judged by the question's original annotator. Attempts over 30 minutes were recorded as unsuccessful, since prolonged efforts typically exceed what developers will invest in fixing unreliable LLM output.
+Correction time fell from 22.6 to **15.4** min (PhD students) and from 18.6 to **11.4** min (developers).
 
-Valid results per participant:
-
-| | w/o TACO | with TACO | | w/o TACO | with TACO |
-|---|:---:|:---:|---|:---:|:---:|
-| phd-part1 | 34 | 33 | dev-part1 | 34 | 33 |
-| phd-part2 | 33 | 33 | dev-part2 | 33 | 33 |
-| phd-part3 | 33 | 34 | dev-part3 | 31 | 34 |
-| **Total** | **100** | **100** | **Total** | **98** | **100** |
-
-We are grateful to all six participants.
+- **Decision time**: time to decide whether an LLM response is adoptable.
+- **Decision accuracy**: correctness of that decision against the benchmark label.
+- **Correction time / success**: time to revise an incorrect response, and the share of revisions the question's original annotator judged successful. Attempts over 30 minutes were recorded as unsuccessful.
+- **Usefulness**: participants' rating of TACO's feedback on a 7-point Likert scale.
 
 </details>
-
-## Repository layout
-
-```
-src/          web app (React + Vite): playground, engine, prompts
-taco_tool/    Python package and `taco` CLI
-benchmark/    TACO-Eval, TACO-Judge, TACO-Judge-Java
-scripts/      local server with LLM proxy, Pages sync, sample builder
-docs/         figures and the cover (cover.html is its editable source)
-```
 
 ## Citation
 

@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "build:pages": "npm run build && node scripts/sync-pages.mjs",
     "samples": "node scripts/make-samples.mjs",
+    "capture": "node scripts/capture-playground.mjs",
     "serve:local": "node scripts/local-server.mjs",
     "local": "npm run build && node scripts/local-server.mjs",
     "preview": "vite preview --host 127.0.0.1"
