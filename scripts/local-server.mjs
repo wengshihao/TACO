@@ -43,7 +43,10 @@ function resolveStaticPath(urlPath) {
     : cleanPath;
   const normalized = normalize(withoutBase).replace(/^(\.\.[/\\])+/, "");
   let filePath = join(root, normalized);
-  if (!existsSync(filePath) || statSync(filePath).isDirectory()) {
+  if (existsSync(filePath) && statSync(filePath).isDirectory()) {
+    filePath = join(filePath, "index.html");
+  }
+  if (!existsSync(filePath)) {
     filePath = join(root, "index.html");
   }
   return filePath;

@@ -26,6 +26,25 @@ export interface InterpreterTrace {
   traceSummary: string;
 }
 
+export interface Usage {
+  calls: number;
+  promptTokens: number;
+  completionTokens: number;
+}
+
+/** Pipeline stages reported to the UI. `align` runs in parallel with the code-quality branch. */
+export type StepId = "convert" | "execQuestion" | "execAnswer" | "recomplete" | "code" | "align";
+export type StepStatus = "idle" | "running" | "done" | "skipped" | "failed";
+
+export interface StepState {
+  status: StepStatus;
+  startedAt?: number;
+  endedAt?: number;
+  note?: string;
+}
+
+export type StepEvent = { step: StepId } & Partial<StepState>;
+
 export interface TacoResult {
   codeQualityAnalysis: string;
   codeQualityScore: Score;
@@ -34,6 +53,10 @@ export interface TacoResult {
   alpha: number;
   overallScore: number;
   reliability: 0 | 1;
+  model: string;
+  language: TacoLanguage;
+  elapsedMs: number;
+  usage: Usage;
   intermediate: {
     completion: CompletionArtifact;
     questionTrace: InterpreterTrace;

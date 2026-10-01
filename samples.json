@@ -1,0 +1,112 @@
+[
+ {
+  "id": "py-714bf15d",
+  "language": "python",
+  "source": "TACO-Judge",
+  "model": "GPT-4o",
+  "title": "Only get part of text from element",
+  "question": "Only get part of text from element\n\nI'm trying to get only part of text from element that looks like this\n\n```Python\n<td class=\"coeff\">\n   <abbr title=\"Thibault Tricole - set\">2<sup>1-2</sup><span class=\"minor\"> - lay</span></abbr></td>\n```\n\n\nIs it possible to only get \"2\" from element and not \"1-2\" and \"-lay\" so output is only \"2\"",
+  "answer": "Yes, you can extract only the \"2\" from the HTML element by using BeautifulSoup to parse the content, then accessing only the main text without the `<sup>` or `<span>` elements. Here’s how:\n\n```Python\nfrom bs4 import BeautifulSoup\n\nhtml = '''\n<td class=\"coeff\">\n   <abbr title=\"Thibault Tricole - set\">2<sup>1-2</sup><span class=\"minor\"> - lay</span></abbr>\n</td>\n'''\n\nsoup = BeautifulSoup(html, 'html.parser')\nabbr = soup.find('abbr', class_='coeff')\n# Get only the text part before any other tags\nmain_text = abbr.contents[0].strip() if abbr else None\n\nprint(main_text)  # Output: \"2\"\n```\n\n\nThis approach targets only the first part of the text content (`\"2\"`) before any other tags (`<sup>` or `<span>`), resulting in just `\"2\"`.",
+  "label": "untrustworthy"
+ },
+ {
+  "id": "py-e406ffc8",
+  "language": "python",
+  "source": "TACO-Judge",
+  "model": "GPT-4o",
+  "title": "How to get the index in the original array when using np.argwhere on a slice?",
+  "question": "How to get the index in the original array when using np.argwhere on a slice?\n\nI am using the function `np.argwhere()` on a subset of an array's elements but I need it to return the indexes of the elements satisfying the condition with respect to the original array and no the slice. Is there a way to do it?\n\nExample code below:\n\n```Python\nA = np.array([1,2,3,4,5,6,7,8,9])\ni = [0, 3, 6, 7, 8]\nnp.argwhere(A[i] < 8)\n\nOutput: array([[0], [1], [2]])\n```\n\n\nThe output I desire is\n\n`array([[0], [3], [6]])`",
+  "answer": "To obtain the desired output, you can use the indices from the original array. Here's how you can do it:\n\n```\nimport numpy as np\n\nA = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])\ni = [0, 3, 6, 7, 8]\n\n# Find indices in the subset where the condition is met\nsubset_indices = np.argwhere(A[i] < 8).flatten()\n\n# Map these indices back to the original array indices\noriginal_indices = np.array(i)[subset_indices]\n\nprint(original_indices)\n```\n\n\nThis will give you the output:\n\n```\narray([0, 3, 6])\n```",
+  "label": "trustworthy"
+ },
+ {
+  "id": "py-c73acf37",
+  "language": "python",
+  "source": "TACO-Judge",
+  "model": "Claude 3.5 Sonnet",
+  "title": "Reshape a 3d array to a 2d array with leading points",
+  "question": "Reshape a 3d array to a 2d array with leading points\n\nI want to reshape this array (Python)\n\n```Python\n[[[0, 1, 2], [3, 4, 5], [6, 7, 8]],\n [[0, 1, 2], [3, 4, 5], [6, 7, 8]],\n [[0, 1, 2], [3, 4, 5], [6, 7, 8]]]\n```\n\n\nTo this:\n\n```Python\n[\n[0,0,0],\n[1,1,1],\n[2,2,2],\n[3,3,3],\n[4,4,4],\n[5,5,5],\n[6,6,6],\n[7,7,7],\n[8,8,8],\n]\n```\n\n\nand then back.\n\nI couldn't figure out how to do it with `np.reshape`.\n\nIt's a series of height maps, and I want to interpolate each point with the corresponding one on the next map to create a smooth transition between them.",
+  "answer": "```\nimport numpy as np\n\n# Original array\narr = np.array([\n    [[0, 1, 2], [3, 4, 5], [6, 7, 8]],\n    [[0, 1, 2], [3, 4, 5], [6, 7, 8]],\n    [[0, 1, 2], [3, 4, 5], [6, 7, 8]]\n])\n\n# Forward transformation\nreshaped = arr.transpose(2, 0, 1).reshape(9, 3)\nprint(\"Forward transformation:\")\nprint(reshaped)\n\n# Backward transformation \noriginal = reshaped.reshape(3, 3, 3).transpose(1, 2, 0)\nprint(\"\\nBackward transformation:\")\nprint(original)\n\n# Verify they're equal\nprint(\"\\nArrays are equal:\", np.array_equal(arr, original))\n```\n\n\nWould you like me to explain or break down the code?",
+  "label": "untrustworthy"
+ },
+ {
+  "id": "py-61d4de23",
+  "language": "python",
+  "source": "TACO-Judge",
+  "model": "Claude 3.5 Sonnet",
+  "title": "Integration using SciPy quad function (Definite Integrals)",
+  "question": "Integration using SciPy quad function (Definite Integrals)\n\nI have been trying to integrate 2x dx from 3 to 4 using SciPy but it is returning an incorrect value.\n\n```Python\nfrom scipy.integrate import quad\n\ndef g(x):\n  return (2*(x**2))/2\n\nquad(g,3,4)\n```\n\n\nThe result returned should be 7, but I am getting result as 12.3333",
+  "answer": "The issue is in your function definition. When you write `2*(x**2)/2`, you're actually calculating x². The original integral of 2x dx should be defined differently. Here's the corrected code:\n\n```Python\nfrom scipy.integrate import quad\n\ndef g(x):\n    return 2*x  # Function is 2x, not 2x²/2\n\nresult, error = quad(g, 3, 4)\nprint(result)  # Should print approximately 7.0\n```\n\n\nWould you like me to explain why the original code was giving you 12.3333 or break down how the integration works?",
+  "label": "trustworthy"
+ },
+ {
+  "id": "py-240c8ea8",
+  "language": "python",
+  "source": "TACO-Judge",
+  "model": "Gemini 1.5 Pro",
+  "title": "Printing dict is not showing expected output",
+  "question": "Printing dict is not showing expected output\n\nThis is the dict data(headers) I am using for REST API get call.\n\n```Python\ncolumn=\"name\"\norder=\"descending\"\nheaders = {\n            'accept': 'application/json',\n            'orderby': '{\"'+column+'\":\"'+order[:4]+'\"}',\n        }\nprint(headers)\n```\n\n\nThis gives me following output:\n\n```Python\n{'accept': 'application/json','orderby': '{\"\\'name\\'\":\"desc\"}'}\n```\n\n\nI am getting 400- BAD Request because of this error in header.\n\nI am expecting the following output that is without '(slash)' in second key-value pair.\n\nHow to print this expected output?\n\n```Python\n{'accept': 'application/json','orderby': '{\"name\":\"desc\"}'}\n```",
+  "answer": "The issue is the way you're constructing the JSON string for the `orderby` header. You're inadvertently adding extra single quotes. Here's the corrected code:\n\n```\nimport json\n\ncolumn = \"name\"\norder = \"descending\"\n\nheaders = {\n    'accept': 'application/json',\n    'orderby': json.dumps({column: order[:4]}),  # Use json.dumps()\n}\n\nprint(headers)\n```\n\n\n**Explanation of the Correction:**\n\nThe problem with the original code was the use of string concatenation to build the JSON string. This led to the inclusion of extra single quotes around the key `name`.\n\nThe solution uses `json.dumps()`. This function takes a Python dictionary and converts it into a correctly formatted JSON string. By using `json.dumps()`, you avoid manual string manipulation and ensure that the JSON is valid, eliminating the extra quotes that were causing the 400 Bad Request error. This approach is much cleaner, more robust, and less error-prone than manual string formatting.\n\nThis corrected code will produce the desired output:\n\n```\n{'accept': 'application/json', 'orderby': '{\"name\": \"desc\"}'}\n```\n\n\nThis format is correct for a JSON string within an HTTP header and should resolve the 400 Bad Request error you were encountering.",
+  "label": "untrustworthy"
+ },
+ {
+  "id": "py-b73eec0c",
+  "language": "python",
+  "source": "TACO-Judge",
+  "model": "Gemini 1.5 Pro",
+  "title": "Get BeautifulSoup Class attribute value",
+  "question": "Get BeautifulSoup Class attribute value\n\nI want to get the value of only 3.5,4.3 and 2.5 from the below structural html content using BeautifulSoup. Please help how to scrap the value.\n\n```Python\n<div class=\"abc\">3.5<img class=\"def\" src=''</div>\n<div class=\"abc\">4.3<img class=\"def\" src=''</div>\n<div class=\"abc\">2.5<img class=\"def\" src=''</div>\n```",
+  "answer": "```\nfrom bs4 import BeautifulSoup\n\nhtml_content = \"\"\"\n<div class=\"abc\">3.5<img class=\"def\" src=''></div>\n<div class=\"abc\">4.3<img class=\"def\" src=''></div>\n<div class=\"abc\">2.5<img class=\"def\" src=''></div>\n\"\"\"\n\nsoup = BeautifulSoup(html_content, 'html.parser')\n\nvalues = []\nfor div in soup.find_all('div', class_='abc'):\n    value = div.contents[0].strip()  # Access the first element and remove whitespace\n    values.append(float(value))  # Convert to float\n\nprint(values)  # Output: [3.5, 4.3, 2.5]\n```\n\n\n**Explanation:**\n\n19. **`soup.find_all('div', class_='abc')`:** This finds all the `<div>` tags with the class \"abc\".\n\n20. **`div.contents[0]`:** For each `div`, `div.contents` gives you a list of its direct children. The text \"3.5\", \"4.3\", and \"2.5\" are the first children of their respective divs, so we access them using `[0]`.\n\n21. **`.strip()`:** We use `.strip()` to remove any leading or trailing whitespace that might be present around the text.\n\n22. **`float(value)`:** We convert the extracted text to a float using `float()`. This is important if you want to use these values for numerical calculations later.\n\nThis code directly extracts the numerical values and converts them to floats, providing the exact output you requested: `[3.5, 4.3, 2.5]`.",
+  "label": "trustworthy"
+ },
+ {
+  "id": "py-12e18edd",
+  "language": "python",
+  "source": "TACO-Judge",
+  "model": "Llama 3.1 405B",
+  "title": "How to split a row into two rows in python based on delimiter in Python",
+  "question": "How to split a row into two rows in python based on delimiter in Python\n\nI have the following input file in csv\n\n```Python\nA,B,C,D\n1,2,|3|4|5|6|7|8,9\n11,12,|13|14|15|16|17|18,19\n```\n\n\nHow do I split column C right in the middle into two new rows with additional column E where the first half of the split get \"0\" in Column E and the second half get \"1\" in Column E?\n\n```Python\nA,B,C,D,E\n1,2,|3|4|5,9,0\n1,2,|6|7|8,9,1\n11,12,|13|14|15,19,0\n11,12,|16|17|18,19,1\n```\n\n\nThank you",
+  "answer": "You can use the pandas library in Python to achieve this. Here's the code:\n\npython\n\n复制\n\n```\nimport pandas as pd\n\n# Read the csv file\ndf = pd.read_csv('output.csv')\n\n# Split column C into two parts\ndf['C'] = df['C'].apply(lambda x: x.strip('|').split('|'))\n\n# Create new columns C and E\ndf[['C', 'F']] = pd.DataFrame(df['C'].tolist(), index=df.index)\n\n# Create new column E\ndf['E'] = 0\n\n# Duplicate the rows and update column E\ndf2 = df.copy()\ndf2['E'] = 1\ndf2['C'] = df['F']\ndf2['F'] = None\n\n# Concatenate the two dataframes\ndf = pd.concat([df, df2])\n\n# Drop column F\ndf = df.drop('F', axis=1)\n\n# Reset the index\ndf = df.reset_index(drop=True)\n\n# Print the resulting dataframe\nprint(df)\n```\n\n\nThis code will output:\n\nbasic\n\n复制\n\n```\n    A   B          C   D  E\n0   1   2       3  9  0\n1   1   2       6  9  1\n2  11  12      13 19  0\n3  11  12      16 19  1\n```",
+  "label": "untrustworthy"
+ },
+ {
+  "id": "py-22268200",
+  "language": "python",
+  "source": "TACO-Judge",
+  "model": "Llama 3.1 405B",
+  "title": "Only take color cycle from a style",
+  "question": "Only take color cycle from a style\n\nI hate everything about the style ggplot, but I do like the colors.\n\n```Python\nimport matplotlib.pyplot as plt\nplt.style.use('ggplot')\n```\n\n\nThis sets the colors from that style, and everything as well. How can I import only the color cycle from that style (for all lines, dots, ...), but import nothing else from that style?",
+  "answer": "Here is the modified code:\n\n```\nimport matplotlib.pyplot as plt\n\n# Import the color cycle from the ggplot style\nplt.rcParams['axes.prop_cycle'] = plt.style.library['ggplot']['axes.prop_cycle']\n\n# Test the color cycle\nfor i in range(10):\n    plt.plot([i, i+1], [i, i+1], label=f'Line {i}')\n\nplt.legend()\nplt.show()\n```\n\n\nThis code imports the color cycle from the ggplot style and then tests it by plotting 10 lines with different colors. The resulting plot will use the ggplot color cycle, but the other style settings will be the default matplotlib style.",
+  "label": "trustworthy"
+ },
+ {
+  "id": "java-79345735",
+  "language": "java",
+  "source": "TACO-Judge-Java",
+  "model": null,
+  "title": "Android Studio/Java Cannot resolve symbol 'getPredefinedDictionary' when using OpenCV (4.11.0) Dictionary",
+  "question": "Android Studio/Java Cannot resolve symbol 'getPredefinedDictionary' when using OpenCV (4.11.0) Dictionary\n\nI'm trying to set up Aruco marker detection in an Android studio Java application. Currently I'm generating my markers in python using this OpenCV aruco dictionary I create:\n\n```\ndictionary = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)\n```\n\nHowever I cannot then refer to a similar dictionary to then detect these markers created in my java code.\n\n\nMy java code is as below:\n\n```\nDictionary dictionary = Dictionary.getPredefinedDictionary(Dictionary.DICT_4X4_50);\n\n```\nHowever this gives the errors: \n```\nCannot resolve method 'getPredefinedDictionary' in 'Dictionary'\nCannot resolve symbol 'DICT_4X4_50'\n```\n\nIt seems that I only have these methods for Dictionary, with no sign of the `getPredefinedDictionary` method:\n\n```\n__fromPtr__(long addr)\ngetBitsFromByteList(Mat byteList, int markerSize)\nclass\ngetByteListFromBits(Mat bits)\n```\n\n\nIs there something wrong in how I am using `OpenCV` or the dictionary?\nThis is how I am importing everything:\n\n```\nimport org.opencv.android.OpenCVLoader;\nimport org.opencv.core.Mat;\nimport org.opencv.imgcodecs.Imgcodecs;\nimport org.opencv.imgproc.Imgproc;\nimport org.opencv.objdetect.ArucoDetector;\nimport org.opencv.objdetect.Dictionary;\n```",
+  "answer": "It looks like you're encountering issues with using the OpenCV library for ArUco marker detection in Java. The problem seems to be related to the way you're trying to access the predefined dictionary in OpenCV's Java bindings. The Java API for OpenCV might differ slightly from the Python API, and it's possible that the method you're trying to use doesn't exist in the Java version or is accessed differently.\n\nHere's how you can resolve this issue:\n\n1. **Check OpenCV Version**: Ensure that you are using the correct version of OpenCV that supports ArUco marker detection in Java. As of OpenCV 4.x, the ArUco module should be included, but it's always good to double-check the documentation or release notes for any changes.\n\n2. **Use the Correct Method**: In Java, the way to access predefined dictionaries might be different. Instead of `getPredefinedDictionary`, you might need to use a different method or approach. Here's a typical way to access a predefined dictionary in OpenCV's Java API:\n\n   ```java\n   import org.opencv.aruco.Aruco;\n   import org.opencv.aruco.Dictionary;\n\n   // Initialize the dictionary\n   Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_4X4_50);\n   ```\n\n   Note that you should import `org.opencv.aruco.Aruco` instead of `org.opencv.objdetect.Dictionary`.\n\n3. **Ensure OpenCV is Properly Loaded**: Make sure that OpenCV is properly initialized in your Android application. Typically, you would do this in your `onCreate` method:\n\n   ```java\n   static {\n       if (!OpenCVLoader.initDebug()) {\n           // Handle initialization error\n       }\n   }\n   ```\n\n4. **Check Your Imports**: Ensure that you have the correct imports for the ArUco module. The ArUco module might be in a different package than `objdetect`, so make sure you're importing from the correct package.\n\n5. **Consult Documentation**: If you're still having trouble, consult the OpenCV Java documentation or look for examples specific to the version you're using. The OpenCV GitHub repository and forums can also be helpful resources.\n\nBy following these steps, you should be able to resolve the issue and successfully use the ArUco marker detection in your Android application.",
+  "label": "untrustworthy"
+ },
+ {
+  "id": "java-79378542",
+  "language": "java",
+  "source": "TACO-Judge-Java",
+  "model": null,
+  "title": "Multiple print statements without null checks using Optional",
+  "question": "Multiple print statements without null checks using Optional\n\nI am trying to convert the below null check of legacy java 7 code to modern java using Streams and Optional.\n\n```\nif (person != null) {\n  System.out.println(person.getName());\n  System.out.println(person.getAge());\n}\n```\n\n\n\nI have tried the below snippet for the same but I believe there must be a better way instead of repeating the same code in multiple lines.\n\n\n```\nOptional.ofNullable(person).map(Person::getName).ifPresent(System.out::println);\nOptional.ofNullable(person).map(Person::getAge).ifPresent(System.out::println);\n```\n\nCan anybody suggest how can I print both the values using a single statement using the Java 8 stream pipeline.",
+  "answer": "You can achieve this in a more concise way by using `Optional.ifPresent` and a single lambda expression to handle both print statements. Here's how you can do it:\n\n```java\nOptional.ofNullable(person).ifPresent(p -> {\n    System.out.println(p.getName());\n    System.out.println(p.getAge());\n});\n```\n\n### Explanation:\n1. `Optional.ofNullable(person)` creates an `Optional` object that contains the `person` if it's not `null`, or is empty if `person` is `null`.\n2. `.ifPresent(p -> { ... })` executes the lambda expression only if the `Optional` contains a non-null value.\n3. Inside the lambda, you can access the `person` object (`p` in this case) and perform multiple operations, such as printing the name and age.\n\nThis approach avoids repeating the `Optional` logic for each field and keeps the code clean and concise.",
+  "label": "trustworthy"
+ },
+ {
+  "id": "java-79053420",
+  "language": "java",
+  "source": "TACO-Judge-Java",
+  "model": null,
+  "title": "Spring Boot pass a default value in return",
+  "question": "Spring Boot pass a default value in return\n\nHow can return a default value in else?\n\n\n\n```\n@GetMapping(\"/byemail/{email}\")\npublic ResponseEntity<IndirizzoDto> getIndirizzoByEmail(@PathVariable(\"email\") String email) {\n\n\tIndirizzo indirizzo = indirizzoService.filtraPerEmail(email);\n\tif (indirizzo != null) {\n\t\t// convert entity to DTO\n\t\tIndirizzoDto indirizzoResponse = modelMapper.map(indirizzo, IndirizzoDto.class);\n\t\treturn ResponseEntity.ok().body(indirizzoResponse);\n\t} else {\n\t\treturn ResponseEntity.noContent().build();  --> How can I pass a default value?\n\t}\n}\n```\n\n\n\nI want a default value of type json",
+  "answer": "To return a default JSON value in the `else` block, you can create a default instance of `IndirizzoDto` with the desired default values and return it in the response. Here's how you can modify your code:\n\n```java\n@GetMapping(\"/byemail/{email}\")\npublic ResponseEntity<IndirizzoDto> getIndirizzoByEmail(@PathVariable(\"email\") String email) {\n\n    Indirizzo indirizzo = indirizzoService.filtraPerEmail(email);\n    if (indirizzo != null) {\n        // Convert entity to DTO\n        IndirizzoDto indirizzoResponse = modelMapper.map(indirizzo, IndirizzoDto.class);\n        return ResponseEntity.ok().body(indirizzoResponse);\n    } else {\n        // Create a default IndirizzoDto object with default values\n        IndirizzoDto defaultIndirizzo = new IndirizzoDto();\n        defaultIndirizzo.setField1(\"default value 1\"); // Replace with actual field names and default values\n        defaultIndirizzo.setField2(\"default value 2\");\n        // Add more fields as needed\n\n        return ResponseEntity.ok().body(defaultIndirizzo);\n    }\n}\n```\n\n### Explanation:\n1. **Default Object Creation**: In the `else` block, create a new instance of `IndirizzoDto` and populate it with default values.\n2. **Return Default JSON**: Use `ResponseEntity.ok().body(defaultIndirizzo)` to return the default object as a JSON response.\n\n### Example Default JSON Output:\nIf `IndirizzoDto` has fields like `field1` and `field2`, the response might look like this:\n```json\n{\n  \"field1\": \"default value 1\",\n  \"field2\": \"default value 2\"\n}\n```\n\nThis approach ensures that the client always receives a JSON response, even when no data is found for the given email.",
+  "label": "trustworthy"
+ }
+]

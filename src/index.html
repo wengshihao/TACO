@@ -3,7 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TACO Trust Assessment</title>
+    <title>TACO · Trust Assessment for LLM Coding Assistance</title>
+    <meta
+      name="description"
+      content="TACO is a reference-free trust assessor for LLM coding-assistance answers. Paste a question and an LLM answer; TACO builds executable harnesses, traces them, and scores code quality and intent alignment. ICSE 2026."
+    />
+    <meta property="og:title" content="TACO · Trust Assessment for LLM Coding Assistance" />
+    <meta property="og:description" content="Reference-free trust assessment of LLM coding answers. ICSE 2026." />
+    <meta property="og:image" content="./overview.webp" />
+    <meta name="theme-color" content="#fafaf7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0e11" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,300..800;1,400..600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    />
+    <script>
+      try {
+        var theme = localStorage.getItem("taco:theme");
+        if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+      } catch (error) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

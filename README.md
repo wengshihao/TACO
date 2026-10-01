@@ -50,7 +50,15 @@ The results are as follows:
 
 [Click here](https://wengshihao.github.io/TACO/) to open the hosted web app.
 
-Fill in an OpenAI-compatible LLM endpoint, choose Python or Java, paste the user question and LLM answer, then run TACO. The online page is fully static and sends requests from your browser, so your provider must allow browser CORS.
+Pick a provider (or any OpenAI-compatible endpoint), choose Python or Java, then paste a user question and an LLM answer, or load one of the human-labelled TACO-Judge examples. Press `Assess trust` (`⌘/Ctrl + Enter`).
+
+The playground shows each pipeline stage live. The response-alignment check runs in parallel with the code-quality branch, and both harnesses are virtually executed concurrently. The report includes:
+
+- the verdict `R`, code quality `C`, and alignment `A`, plus `S` with an α slider that re-weights instantly, no re-run needed;
+- agreement with the human label when you ran a benchmark example;
+- the completed harnesses, annotated execution traces, raw JSON, and a JSON download.
+
+The online page is fully static and sends requests straight from your browser, so your provider must allow browser CORS. Your API key stays in the tab session unless you tick *Remember key on this device*.
 
 ## Quick Start
 
@@ -69,7 +77,7 @@ Open:
 http://127.0.0.1:4173/TACO/
 ```
 
-The local page has the same interface as the online app. If your LLM endpoint blocks browser requests, enable `Use local proxy`; the local server forwards requests through `/api/llm-proxy`.
+The local page has the same interface as the online app. It detects the local server and routes LLM requests through `/api/llm-proxy` automatically, which avoids CORS. You can switch this off in the connection settings.
 
 ## Benchmark
 
@@ -79,7 +87,7 @@ The release includes the benchmark data used by TACO:
 - `benchmark/TACO-Judge`: human-annotated Python model responses.
 - `benchmark/TACO-Judge-Java`: Java coding-assistance responses with annotations.
 
-A benchmark index is also exposed from the web app at `/benchmark/`.
+A benchmark index is also exposed from the web app at `/benchmark/`. The playground's example gallery (`public/samples.json`) is generated from TACO-Judge with `npm run samples`.
 
 <details>
 <summary><strong>CLI for benchmark and batch evaluation</strong></summary>
