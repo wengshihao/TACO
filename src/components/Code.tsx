@@ -88,13 +88,14 @@ export function CodeBlock({
   );
 }
 
-/** Renders the small subset of Markdown LLM analyses tend to use: paragraphs, lists, `code`, **bold**. */
+/** Renders the small subset of Markdown LLM analyses tend to use: paragraphs, lists, `code`, **bold**, *italic*. */
 export function Prose({ text }: { text: string }) {
   const blocks = text.trim().split(/\n{2,}/);
   const inline = (line: string) =>
-    line.split(/(`[^`]+`|\*\*[^*]+\*\*)/g).map((part, i) => {
+    line.split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*\s][^*]*\*)/g).map((part, i) => {
       if (part.startsWith("`") && part.endsWith("`") && part.length > 2) return <code key={i}>{part.slice(1, -1)}</code>;
       if (part.startsWith("**") && part.endsWith("**") && part.length > 4) return <strong key={i}>{part.slice(2, -2)}</strong>;
+      if (part.startsWith("*") && part.endsWith("*") && part.length > 2) return <em key={i}>{part.slice(1, -1)}</em>;
       return <Fragment key={i}>{part}</Fragment>;
     });
   if (!text.trim()) return <p className="muted">No analysis returned.</p>;
