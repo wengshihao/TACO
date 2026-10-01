@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -40,32 +41,13 @@ class TacoEngine:
 
     def evaluate(self, question: str, answer: str, *, item_id: str | int | None = None) -> TacoResult:
         self._raw = {}
-        attempts: list[dict[str, Any]] = []
-        feedback = "None."
-
-        completion = self._complete_code(question, answer, feedback=feedback)
-        question_trace = self._interpret(completion.question_code, stage="question_interpreter")
-        answer_trace = self._interpret(completion.answer_code, stage="answer_interpreter")
-
-        for attempt in range(self.max_recompletion):
-            if question_trace.assert_status == "pass":
-                break
-            feedback = json_dumps(
-                {
-                    "attempt": attempt + 1,
-                    "questionTraceStatus": question_trace.assert_status,
-                    "questionFailureReason": question_trace.failure_reason,
-                    "answerTraceStatus": answer_trace.assert_status,
-                    "answerFailureReason": answer_trace.failure_reason,
-                }
-            )
-            attempts.append({"attempt": attempt + 1, "feedback": feedback})
-            completion = self._complete_code(question, answer, feedback=feedback)
-            question_trace = self._interpret(completion.question_code, stage=f"question_interpreter_retry_{attempt + 1}")
-            answer_trace = self._interpret(completion.answer_code, stage=f"answer_interpreter_retry_{attempt + 1}")
-
-        code_quality = self._evaluate_code_quality(question, answer, completion, question_trace, answer_trace)
-        alignment = self._evaluate_alignment(question, answer)
+        # Alignment only needs the question and answer, so it runs alongside the code-quality branch,
+        # and the question/answer harnesses are virtually executed concurrently.
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            alignment_future = pool.submit(self._evaluate_alignment, question, answer)
+            completion, question_trace, answer_trace, attempts = self._complete_and_execute(question, answer, pool)
+            code_quality = self._evaluate_code_quality(question, answer, completion, question_trace, answer_trace)
+            alignment = alignment_future.result()
 
         code_score = code_quality.code_quality_score
         alignment_score = alignment.alignment_score
@@ -89,6 +71,37 @@ class TacoEngine:
                 raw=self._raw if self.keep_raw else {},
             ),
         )
+
+    def _complete_and_execute(
+        self, question: str, answer: str, pool: ThreadPoolExecutor
+    ) -> tuple[CompletionArtifact, InterpreterTrace, InterpreterTrace, list[dict[str, Any]]]:
+        attempts: list[dict[str, Any]] = []
+
+        def execute(completion: CompletionArtifact, suffix: str) -> tuple[InterpreterTrace, InterpreterTrace]:
+            question_future = pool.submit(self._interpret, completion.question_code, stage=f"question_interpreter{suffix}")
+            answer_trace = self._interpret(completion.answer_code, stage=f"answer_interpreter{suffix}")
+            return question_future.result(), answer_trace
+
+        completion = self._complete_code(question, answer, feedback="None.")
+        question_trace, answer_trace = execute(completion, "")
+
+        for attempt in range(self.max_recompletion):
+            if question_trace.assert_status == "pass":
+                break
+            feedback = json_dumps(
+                {
+                    "attempt": attempt + 1,
+                    "questionTraceStatus": question_trace.assert_status,
+                    "questionFailureReason": question_trace.failure_reason,
+                    "answerTraceStatus": answer_trace.assert_status,
+                    "answerFailureReason": answer_trace.failure_reason,
+                }
+            )
+            attempts.append({"attempt": attempt + 1, "feedback": feedback})
+            completion = self._complete_code(question, answer, feedback=feedback)
+            question_trace, answer_trace = execute(completion, f"_retry_{attempt + 1}")
+
+        return completion, question_trace, answer_trace, attempts
 
     def _messages(self, content: str) -> list[dict[str, str]]:
         return [{"role": "system", "content": SYSTEM}, {"role": "user", "content": content}]

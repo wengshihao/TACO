@@ -15,7 +15,7 @@ class ChatClient(Protocol):
 
 @dataclass
 class OpenAICompatibleClient:
-    model: str = "gpt-4o-mini"
+    model: str | None = None
     api_key: str | None = None
     base_url: str | None = None
     timeout: float = 120.0
@@ -26,7 +26,8 @@ class OpenAICompatibleClient:
     def __post_init__(self) -> None:
         self.api_key = self.api_key or os.getenv("TACO_API_KEY") or os.getenv("OPENAI_API_KEY")
         self.base_url = self.base_url or os.getenv("TACO_BASE_URL") or os.getenv("OPENAI_BASE_URL")
-        self.model = os.getenv("TACO_MODEL", self.model)
+        # An explicit model wins over the environment; the environment wins over the default.
+        self.model = self.model or os.getenv("TACO_MODEL") or "gpt-4o-mini"
         if not self.api_key:
             raise ValueError("Missing API key. Set TACO_API_KEY or pass --api-key.")
         self._client = OpenAI(api_key=self.api_key, base_url=self.base_url, timeout=self.timeout)
